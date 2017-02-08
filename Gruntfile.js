@@ -159,8 +159,7 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('bump', 'Bump version', function(target) {
 		var semver = require('semver'),
-			packageJson = grunt.file.readJSON('package.json'),
-			bowerJson = grunt.file.readJSON('bower.json');
+			packageJson = grunt.file.readJSON('package.json');
 
 		var msg = 'Bumping version from "' + packageJson.version + '" to "';
 
@@ -174,10 +173,7 @@ module.exports = function(grunt) {
 		msg += packageJson.version + '"\n';
 		console.log(msg);
 
-		bowerJson.version = 'v' + packageJson.version;
-
 		grunt.file.write('package.json', JSON.stringify(packageJson, null, 2) + '\n');
-		grunt.file.write('bower.json', JSON.stringify(bowerJson, null, 2) + '\n');
 	});
 
 	grunt.registerTask('commit', 'Commit self', function(target) {
