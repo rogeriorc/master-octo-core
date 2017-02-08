@@ -38,7 +38,8 @@ function clean() {
 
 function compile() {
 	let appserver = new AppServer({
-		target: path.join(APPSERVER_DIR, APPSERVER_EXE)
+		target: path.join(APPSERVER_DIR, APPSERVER_EXE),
+		silent: true
 	}),
 		tds = new TDS(),
 		tdsOptions = {

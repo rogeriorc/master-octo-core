@@ -21,7 +21,7 @@ module.exports = function(grunt) {
 
 		components: {
 			js: {
-				name: 'master-octo-core-js',
+				name: 'master-octo-core',
 				dist: path.join('build', 'dist', 'master-octo-core-js')
 			},
 			advpl: {
@@ -110,7 +110,8 @@ module.exports = function(grunt) {
 	grunt.registerTask('compile', 'Compile AdvPL', function(target) {
 		let done = this.async(),
 			appserver = new AppServer({
-				target: path.join(APPSERVER_DIR, APPSERVER_EXE)
+				target: path.join(APPSERVER_DIR, APPSERVER_EXE),
+				silent: true
 			}),
 			tds = new TDS(),
 			tdsOptions = {
