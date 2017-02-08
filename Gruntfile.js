@@ -30,11 +30,6 @@ module.exports = function(grunt) {
 			}
 		},
 
-		twebchannel: {
-			name: 'master-octo-core-js',
-			dist: path.join('build', 'dist', 'js')
-		},
-
 		clean: {
 			dist: ['build']
 		},
@@ -104,11 +99,11 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('deploy', 'Deploy new artifacts to his repos', function(target) {
 		let done = this.async(),
-			releaseTWebChannel = require('./src/util/releases/master-octo-core-js'),
-			releaseAppBase = require('./src/util/releases/master-octo-core-advpl');
+			releaseJs = require('./src/util/releases/master-octo-core-js'),
+			releaseAdvpl = require('./src/util/releases/master-octo-core-advpl');
 
-		Q().then(releaseTWebChannel)
-			.then(releaseAppBase)
+		Q().then(releaseJs)
+			.then(releaseAdvpl)
 			.then(done);
 	});
 
