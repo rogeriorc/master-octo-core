@@ -58,11 +58,11 @@ function compile() {
 			var options = Object.assign({
 				recompile: true,
 				program: [
-					path.join(__basedir, 'src', 'components', 'app-base', 'src')
+					path.join(__basedir, 'src', 'components', 'advpl', 'src')
 				],
 				includes: [
 					path.join(__basedir, 'src', 'resources', 'includes'),
-					path.join(__basedir, 'src', 'components', 'app-base', 'includes')
+					path.join(__basedir, 'src', 'components', 'advpl', 'includes')
 				]
 			}, tdsOptions);
 
@@ -70,7 +70,7 @@ function compile() {
 		})
 		.then(function() {
 			var options = Object.assign({
-				fileResource: shelljs.ls(path.join(__basedir, 'src', 'components', 'app-base', 'src')),
+				fileResource: shelljs.ls(path.join(__basedir, 'src', 'components', 'advpl', 'src')),
 				patchType: "ptm",
 				saveLocal: path.join(__basedir, 'build', 'dist')
 			}, tdsOptions);
@@ -97,7 +97,7 @@ function copy() {
 	shelljs.mkdir('-p', dest);
 	shelljs.cp('-Rf', origin, dest);
 
-	origin = path.join(__basedir, 'src', 'components', 'app-base', 'includes');
+	origin = path.join(__basedir, 'src', 'components', 'advpl', 'includes');
 	shelljs.cp('-Rf', origin, dest);
 
 	origin = path.join(__basedir, 'build', 'dist', 'tttp110.ptm');

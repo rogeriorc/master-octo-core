@@ -19,9 +19,20 @@ module.exports = function(grunt) {
 
 		pkg: pkg,
 
+		components: {
+			js: {
+				name: 'master-octo-core-js',
+				dist: path.join('build', 'dist', 'js')
+			},
+			advpl: {
+				name: 'master-octo-core-advpl',
+				dist: path.join('build', 'dist', 'advpl')
+			}
+		},
+
 		twebchannel: {
-			name: 'totvs-twebchannel',
-			dist: path.join('build', 'dist', 'totvs-twebchannel')
+			name: 'master-octo-core-js',
+			dist: path.join('build', 'dist', 'js')
 		},
 
 		clean: {
@@ -61,7 +72,7 @@ module.exports = function(grunt) {
 					'build/stagging/js/promisequeue.js',
 					'build/stagging/js/totvs-twebchannel.js'
 				],
-				dest: '<%= twebchannel.dist %>/<%= twebchannel.name %>.js'
+				dest: '<%= components.js.dist %>/<%= components.js.name %>.js'
 			}
 		},
 
@@ -74,7 +85,7 @@ module.exports = function(grunt) {
 			},
 			dist: {
 				src: '<%= concat.dist.dest %>',
-				dest: '<%= twebchannel.dist %>/<%= twebchannel.name %>.min.js'
+				dest: '<%= components.js.dist %>/<%= components.js.name %>.min.js'
 			}
 		}
 
@@ -93,8 +104,8 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('deploy', 'Deploy new artifacts to his repos', function(target) {
 		let done = this.async(),
-			releaseTWebChannel = require('./src/util/releases/totvs-twebchannel'),
-			releaseAppBase = require('./src/util/releases/cloudbridge-app-base');
+			releaseTWebChannel = require('./src/util/releases/master-octo-core-js'),
+			releaseAppBase = require('./src/util/releases/master-octo-core-advpl');
 
 		Q().then(releaseTWebChannel)
 			.then(releaseAppBase)
@@ -108,12 +119,12 @@ module.exports = function(grunt) {
 			}),
 			tds = new TDS(),
 			tdsOptions = {
-			serverType: "4GL",
-			server: "127.0.0.1",
-			port: -1,
-			build: "7.00.150715P",
-			environment: "ENVIRONMENT"
-		};
+				serverType: "4GL",
+				server: "127.0.0.1",
+				port: -1,
+				build: "7.00.150715P",
+				environment: "ENVIRONMENT"
+			};
 
 		grunt.file.mkdir(path.join(__basedir, 'build', 'dist'));
 
@@ -126,11 +137,11 @@ module.exports = function(grunt) {
 				var options = Object.assign({
 					recompile: true,
 					program: [
-						path.join(__basedir, 'src', 'components', 'app-base', 'src')
+						path.join(__basedir, 'src', 'components', 'advpl', 'src')
 					],
 					includes: [
 						path.join(__basedir, 'src', 'resources', 'includes'),
-						path.join(__basedir, 'src', 'components', 'app-base', 'includes')
+						path.join(__basedir, 'src', 'components', 'advpl', 'includes')
 					]
 				}, tdsOptions);
 
@@ -138,7 +149,7 @@ module.exports = function(grunt) {
 			})
 			.then(function() {
 				var options = Object.assign({
-					fileResource: shelljs.ls(path.join(__basedir, 'src', 'components', 'app-base', 'src')),
+					fileResource: shelljs.ls(path.join(__basedir, 'src', 'components', 'advpl', 'src')),
 					patchType: "ptm",
 					saveLocal: path.join(__basedir, 'build', 'dist')
 				}, tdsOptions);

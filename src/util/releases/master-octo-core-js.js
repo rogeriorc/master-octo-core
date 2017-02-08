@@ -6,8 +6,8 @@ let path = require('path'),
 	git = null;
 
 
-const GITHUB_PREFIX = 'https://github.com/TOTVSTEC/',
-	REPO_NAME = 'bower-totvs-twebchannel';
+const GITHUB_PREFIX = 'https://github.com/rogeriorc/',
+	REPO_NAME = 'master-octo-core-js';
 
 module.exports = function run() {
 	git = new GitRepo({
@@ -22,8 +22,8 @@ module.exports = function run() {
 };
 
 function copy() {
-	let origin = path.join(__basedir, 'build', 'dist', 'totvs-twebchannel', '*.*'),
-		dest = path.join(__basedir, 'build', 'release', 'bower-totvs-twebchannel');
+	let origin = path.join(__basedir, 'build', 'dist', 'master-octo-core-js', '*.*'),
+		dest = path.join(__basedir, 'build', 'release', 'master-octo-core-js');
 
 	shelljs.cp('-Rf', origin, dest);
 }

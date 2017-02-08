@@ -1,7 +1,7 @@
 var path = require('path'),
 	fs = require('fs'),
 	shelljs = require('shelljs'),
-	GITHUB_PREFIX = 'https://github.com/TOTVSTEC/',
+	GITHUB_PREFIX = 'https://github.com/rogeriorc/',
 	FILES = ['package.json', 'bower.json'];
 
 class GitRepo {
