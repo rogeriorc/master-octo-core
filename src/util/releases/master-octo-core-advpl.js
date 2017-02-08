@@ -29,7 +29,7 @@ module.exports = function run() {
 };
 
 function clean() {
-	let rpoDir = path.join(__basedir, 'build', 'dist'),
+	let rpoDir = path.join(__basedir, 'build', 'dist', REPO_NAME),
 		rpoFile = path.join(rpoDir, 'tttp110.*');
 
 	shelljs.rm('-rf', rpoFile);
@@ -72,7 +72,7 @@ function compile() {
 			var options = Object.assign({
 				fileResource: shelljs.ls(path.join(__basedir, 'src', 'components', 'advpl', 'src')),
 				patchType: "ptm",
-				saveLocal: path.join(__basedir, 'build', 'dist')
+				saveLocal: path.join(__basedir, 'build', 'dist', REPO_NAME)
 			}, tdsOptions);
 
 			return tds.generatePatch(options);
@@ -85,7 +85,7 @@ function compile() {
 
 function copy() {
 	let home = path.join(__basedir, 'build', 'release', REPO_NAME),
-		origin = path.join(__basedir, 'build', 'dist', 'tttp110.rpo'),
+		origin = path.join(__basedir, 'build', 'dist', REPO_NAME, 'tttp110.rpo'),
 		dest = path.join(home, 'src', 'apo', 'tttp110.rpo');
 
 	shelljs.mkdir('-p', path.join(dest, '..'));
@@ -100,8 +100,8 @@ function copy() {
 	origin = path.join(__basedir, 'src', 'components', 'advpl', 'includes');
 	shelljs.cp('-Rf', origin, dest);
 
-	origin = path.join(__basedir, 'build', 'dist', 'tttp110.ptm');
-	dest = path.join(home, 'build', 'advpl', 'tttp110.ptm');
+	origin = path.join(__basedir, 'build', 'dist', REPO_NAME, 'tttp110.ptm');
+	dest = path.join(home, 'tttp110.ptm');
 	shelljs.cp('-Rf', origin, dest);
 }
 

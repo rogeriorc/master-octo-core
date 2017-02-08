@@ -22,8 +22,8 @@ module.exports = function run() {
 };
 
 function copy() {
-	let origin = path.join(__basedir, 'build', 'dist', 'master-octo-core-js', '*.*'),
-		dest = path.join(__basedir, 'build', 'release', 'master-octo-core-js');
+	let origin = path.join(__basedir, 'build', 'dist', REPO_NAME, '*.*'),
+		dest = path.join(__basedir, 'build', 'release', REPO_NAME);
 
 	shelljs.cp('-Rf', origin, dest);
 }

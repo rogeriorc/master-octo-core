@@ -22,11 +22,11 @@ module.exports = function(grunt) {
 		components: {
 			js: {
 				name: 'master-octo-core-js',
-				dist: path.join('build', 'dist', 'js')
+				dist: path.join('build', 'dist', 'master-octo-core-js')
 			},
 			advpl: {
 				name: 'master-octo-core-advpl',
-				dist: path.join('build', 'dist', 'advpl')
+				dist: path.join('build', 'dist', 'master-octo-core-advpl')
 			}
 		},
 
