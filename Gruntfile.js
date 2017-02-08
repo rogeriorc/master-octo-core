@@ -113,7 +113,7 @@ module.exports = function(grunt) {
 				target: path.join(APPSERVER_DIR, APPSERVER_EXE),
 				silent: true
 			}),
-			tds = new TDS(),
+			tds = new TDS({ silent: true }),
 			tdsOptions = {
 				serverType: "4GL",
 				server: "127.0.0.1",
