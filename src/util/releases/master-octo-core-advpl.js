@@ -27,9 +27,6 @@ module.exports = function run() {
 };
 
 function clean() {
-	//let rpoFiles = path.join(__basedir, 'build', 'dist', 'tttp110.*');
-
-	//shelljs.rm('-rf', rpoFiles);
 	shelljs.rm('-rf', DIST_DIR);
 	shelljs.mkdir('-p', DIST_DIR);
 }
@@ -96,8 +93,7 @@ function compile() {
 
 
 function copy() {
-	let home = TARGET_DIR,
-		origin = path.join(__basedir, 'build', 'dist', 'tttp110.rpo'),
+	let origin = path.join(DIST_DIR, 'tttp110.rpo'),
 		dest = path.join(TARGET_DIR, 'src', 'apo', 'tttp110.rpo');
 
 	shelljs.mkdir('-p', path.dirname(dest));
