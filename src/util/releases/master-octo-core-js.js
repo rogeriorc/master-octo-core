@@ -6,8 +6,6 @@ let path = require('path'),
 	git = require('totvstec-tools').git,
 	version = require('totvstec-tools').version;
 
-
-
 const GITHUB_PREFIX = 'https://github.com/rogeriorc/',
 	REPO_NAME = 'master-octo-core-js',
 	TARGET_DIR = path.join(__basedir, 'build', 'release', REPO_NAME),
