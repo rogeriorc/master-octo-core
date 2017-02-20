@@ -8,7 +8,6 @@ let path = require('path'),
 	git = require('totvstec-tools').git,
 	version = require('totvstec-tools').version;
 
-
 const APPSERVER_DIR = path.join(__basedir, 'src', 'resources', 'appserver'),
 	APPSERVER_EXE = process.platform === 'win32' ? 'appserver.exe' : 'appserver',
 	GITHUB_PREFIX = 'https://github.com/rogeriorc/',
