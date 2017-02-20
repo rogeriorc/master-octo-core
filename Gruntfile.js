@@ -172,7 +172,7 @@ module.exports = function(grunt) {
 		let done = this.async(),
 			git = tools.git,
 			pkg = grunt.file.readJSON('package.json'),
-			message = 'Version ' + pkg.version;
+			message = '"Version ' + pkg.version + '"';
 
 		console.log('git commit all message ' + message);
 
