@@ -152,10 +152,6 @@ module.exports = function(grunt) {
 			.then(done);
 	});
 
-	grunt.registerTask('yahoo', 'Yahoo!', function(target) {
-
-	});
-
 	grunt.registerTask('bump', 'Bump version', function(target) {
 		let v1 = tools.version.read('package.json'),
 			v2 = v1;
@@ -175,19 +171,28 @@ module.exports = function(grunt) {
 	grunt.registerTask('commit', 'Commit self', function(target) {
 		let done = this.async(),
 			git = tools.git,
-			pkg = grunt.file.readJSON('package.json');
+			pkg = grunt.file.readJSON('package.json'),
+			message = 'Version ' + pkg.version;
 
-		let promise = git.commit({ all: true, message: '"Version ' + pkg.version + '"' })
+		console.log('git commit all message ' + message);
+
+		let promise = git.commit({ all: true, message: message })
 			.then(() => {
+				console.log('git push');
+
 				return git.push();
 			});
 
 		if (target === 'tag') {
 			promise
 				.then(() => {
-					return git.tag({ annotate: 'v' + pkg.version, message: 'Version ' + pkg.version });
+					console.log('git tag v' + pkg.version + ' message ' + message);
+
+					return git.tag({ annotate: 'v' + pkg.version, message: message });
 				})
 				.then(() => {
+					console.log('git push tags');
+
 					return git.push({ tags: true });
 				});
 		}
