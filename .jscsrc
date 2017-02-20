@@ -1,5 +1,5 @@
 {
-  "excludeFiles": ["node_modules/**", "build/**", "src/resources/js/**"],
+  "excludeFiles": ["node_modules/**", "build/**", "src/resources/js/**", "<node_internals>/**"],
   "requireSemicolons": true,
   "validateIndentation": {
     "value": "\t",
