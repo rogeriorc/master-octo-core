@@ -3,14 +3,14 @@
 global.__basedir = __dirname;
 
 let path = require('path'),
-	os = require('os'),
 	Q = require('q'),
+	tools = require('totvstec-tools'),
 	shelljs = require('shelljs'),
 	AppServer = require('totvs-platform-helper/appserver'),
 	TDS = require('totvs-platform-helper/tdscli');
 
 const APPSERVER_DIR = path.join(__basedir, 'src', 'resources', 'appserver'),
-	APPSERVER_EXE = os.platform() === 'win32' ? 'appserver.exe' : 'appserver';
+	APPSERVER_EXE = process.platform === 'win32' ? 'appserver.exe' : 'appserver';
 
 module.exports = function(grunt) {
 	var pkg = grunt.file.readJSON('package.json');
@@ -91,12 +91,6 @@ module.exports = function(grunt) {
 	require('load-grunt-tasks')(grunt, { scope: 'devDependencies' });
 	require('time-grunt')(grunt);
 
-	// Full distribution task.
-	grunt.registerTask('dist', ['ts', 'template', 'concat', 'uglify', 'compile']);
-
-	// Default task.
-	grunt.registerTask('default', ['clean', 'dist']);
-
 	grunt.registerTask('deploy', 'Deploy new artifacts to his repos', function(target) {
 		let done = this.async(),
 			releaseJs = require('./src/util/releases/master-octo-core-js'),
@@ -158,40 +152,54 @@ module.exports = function(grunt) {
 			.then(done);
 	});
 
+	grunt.registerTask('yahoo', 'Yahoo!', function(target) {
+
+	});
+
 	grunt.registerTask('bump', 'Bump version', function(target) {
-		var semver = require('semver'),
-			packageJson = grunt.file.readJSON('package.json');
+		let v1 = tools.version.read('package.json'),
+			v2 = v1;
 
-		var msg = 'Bumping version from "' + packageJson.version + '" to "';
-
-		if (target === 'release') {
-			packageJson.version = semver.inc(packageJson.version, 'patch');
+		if (target === 'dev') {
+			v2 = tools.version.inc(v1, 'patch', 'SNAPSHOT');
 		}
-		else if (target === 'dev') {
-			packageJson.version = semver.inc(packageJson.version, 'patch') + '-SNAPSHOT';
+		else {
+			v2 = tools.version.inc(v1, 'patch');
 		}
 
-		msg += packageJson.version + '"\n';
-		console.log(msg);
+		console.log('Bumping version from "' + v1 + '" to "' + v2 + '"\n');
 
-		grunt.file.write('package.json', JSON.stringify(packageJson, null, 2) + '\n');
+		tools.version.write('package.json', v2);
 	});
 
 	grunt.registerTask('commit', 'Commit self', function(target) {
-		let GitRepo = require(__basedir + '/src/util/git'),
-			git = new GitRepo({
-				cwd: __basedir
-			}),
+		let done = this.async(),
+			git = tools.git,
 			pkg = grunt.file.readJSON('package.json');
 
-		git.commit("Version " + pkg.version);
+		let promise = git.commit({ all: true, message: '"Version ' + pkg.version + '"' })
+			.then(() => {
+				return git.push();
+			});
 
-		if (target == 'tag') {
-			git.tag('v' + pkg.version, "Version " + pkg.version);
+		if (target === 'tag') {
+			promise
+				.then(() => {
+					return git.tag({ annotate: 'v' + pkg.version, message: 'Version ' + pkg.version });
+				})
+				.then(() => {
+					return git.push({ tags: true });
+				});
 		}
 
-		git.commit();
+		promise.then(done);
 	});
+
+	// Full distribution task.
+	grunt.registerTask('dist', ['ts', 'template', 'concat', 'uglify', 'compile']);
+
+	// Default task.
+	grunt.registerTask('default', ['clean', 'dist']);
 
 	grunt.registerTask('release', ['clean', 'bump:release', 'dist', 'deploy', 'commit:tag', 'bump:dev', 'commit']);
 

@@ -1,20 +1,14 @@
 let path = require('path'),
 	shelljs = require('shelljs'),
-	fs = require('fs'),
 	Q = require('q'),
-	GitRepo = require(__basedir + '/src/util/git'),
-	git = null;
-
+	git = require('totvstec-tools').git,
+	version = require('totvstec-tools').version;
 
 const GITHUB_PREFIX = 'https://github.com/rogeriorc/',
-	REPO_NAME = 'master-octo-core-js';
+	REPO_NAME = 'master-octo-core-js',
+	TARGET_DIR = path.join(__basedir, 'build', 'release', REPO_NAME);
 
 module.exports = function run() {
-	git = new GitRepo({
-		cwd: path.join(__basedir, 'build', 'release', REPO_NAME),
-		url: GITHUB_PREFIX + REPO_NAME + '.git'
-	});
-
 	return Q()
 		.then(checkout)
 		.then(copy)
@@ -29,15 +23,40 @@ function copy() {
 }
 
 function checkout() {
-	git.checkout();
+	let url = GITHUB_PREFIX + REPO_NAME + '.git',
+		options = { cwd: TARGET_DIR };
+
+	shelljs.rm('-rf', TARGET_DIR);
+	shelljs.mkdir('-p', TARGET_DIR);
+
+	return git.clone([url, '.'], { branch: 'master' }, options)
+		.then(() => {
+			return git.checkout({ B: 'master' }, options);
+		});
 }
 
 function commit() {
 	let packagePath = path.join(__basedir, 'package.json'),
-		pkg = JSON.parse(fs.readFileSync(packagePath, {encoding: 'utf8'}));
+		packageVersion = version.read(packagePath),
+		message = '"Version ' + packageVersion + '"',
+		options = { cwd: TARGET_DIR };
 
-	git.bump(pkg.version);
+	for (let i = 0; i < FILES.length; i++) {
+		let file = path.join(TARGET_DIR, FILES[i]);
 
-	git.commit("Version " + pkg.version);
-	git.tag('v' + pkg.version, "Version " + pkg.version);
+		if (shelljs.test('-f', file)) {
+			version.write(file, packageVersion);
+		}
+	}
+
+	return git.commit({ all: true, message: message }, options)
+		.then(() => {
+			return git.push({}, options);
+		})
+		.then(() => {
+			return git.tag({ annotate: 'v' + packageVersion, message: message }, options);
+		})
+		.then(() => {
+			return git.push({ tags: true }, options);
+		});
 }

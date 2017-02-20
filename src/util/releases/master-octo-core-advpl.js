@@ -1,25 +1,22 @@
+'use strict';
+
 let path = require('path'),
-	fs = require('fs'),
-	os = require('os'),
 	shelljs = require('shelljs'),
 	Q = require('q'),
 	AppServer = require('totvs-platform-helper/appserver'),
 	TDS = require('totvs-platform-helper/tdscli'),
-	GitRepo = require(__basedir + '/src/util/git'),
-	git = null;
+	git = require('totvstec-tools').git,
+	version = require('totvstec-tools').version;
 
 
 const APPSERVER_DIR = path.join(__basedir, 'src', 'resources', 'appserver'),
-	APPSERVER_EXE = os.platform() === 'win32' ? 'appserver.exe' : 'appserver',
+	APPSERVER_EXE = process.platform === 'win32' ? 'appserver.exe' : 'appserver',
 	GITHUB_PREFIX = 'https://github.com/rogeriorc/',
-	REPO_NAME = 'master-octo-core-advpl';
+	REPO_NAME = 'master-octo-core-advpl',
+	TARGET_DIR = path.join(__basedir, 'build', 'release', REPO_NAME),
+	FILES = ['package.json', 'bower.json'];
 
 module.exports = function run() {
-	git = new GitRepo({
-		cwd: path.join(__basedir, 'build', 'release', REPO_NAME),
-		url: GITHUB_PREFIX + REPO_NAME + '.git'
-	});
-
 	return Q()
 		.then(clean)
 		.then(checkout)
@@ -85,11 +82,11 @@ function compile() {
 
 
 function copy() {
-	let home = path.join(__basedir, 'build', 'release', REPO_NAME),
+	let home = TARGET_DIR,
 		origin = path.join(__basedir, 'build', 'dist', REPO_NAME, 'tttp110.rpo'),
 		dest = path.join(home, 'src', 'apo', 'tttp110.rpo');
 
-	shelljs.mkdir('-p', path.join(dest, '..'));
+	shelljs.mkdir('-p', path.dirname(dest));
 	shelljs.cp('-Rf', origin, dest);
 
 	origin = path.join(__basedir, 'src', 'resources', 'includes');
@@ -107,17 +104,41 @@ function copy() {
 }
 
 
-
 function checkout() {
-	git.checkout();
+	let url = GITHUB_PREFIX + REPO_NAME + '.git',
+		options = { cwd: TARGET_DIR };
+
+	shelljs.rm('-rf', TARGET_DIR);
+	shelljs.mkdir('-p', TARGET_DIR);
+
+	return git.clone([url, '.'], { branch: 'master' }, options)
+		.then(() => {
+			return git.checkout({ B: 'master' }, options);
+		});
 }
 
 function commit() {
 	let packagePath = path.join(__basedir, 'package.json'),
-		pkg = JSON.parse(fs.readFileSync(packagePath, { encoding: 'utf8' }));
+		packageVersion = version.read(packagePath),
+		message = '"Version ' + packageVersion + '"',
+		options = { cwd: TARGET_DIR };
 
-	git.bump(pkg.version);
+	for (let i = 0; i < FILES.length; i++) {
+		let file = path.join(TARGET_DIR, FILES[i]);
 
-	git.commit("Version " + pkg.version);
-	git.tag('v' + pkg.version, "Version " + pkg.version);
+		if (shelljs.test('-f', file)) {
+			version.write(file, packageVersion);
+		}
+	}
+
+	return git.commit({ all: true, message: message }, options)
+		.then(() => {
+			return git.push({}, options);
+		})
+		.then(() => {
+			return git.tag({ annotate: 'v' + packageVersion, message: message }, options);
+		})
+		.then(() => {
+			return git.push({ tags: true }, options);
+		});
 }
