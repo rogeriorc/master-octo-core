@@ -13,6 +13,7 @@ const APPSERVER_DIR = path.join(__basedir, 'src', 'resources', 'appserver'),
 	GITHUB_PREFIX = 'https://github.com/rogeriorc/',
 	REPO_NAME = 'master-octo-core-advpl',
 	TARGET_DIR = path.join(__basedir, 'build', 'release', REPO_NAME),
+	DIST_DIR = path.join(__basedir, 'build', 'dist', REPO_NAME),
 	FILES = ['package.json', 'bower.json'];
 
 module.exports = function run() {
@@ -26,12 +27,11 @@ module.exports = function run() {
 };
 
 function clean() {
-	let rpoDir = path.join(__basedir, 'build', 'dist', REPO_NAME),
-		rpoFiles = path.join(__basedir, 'build', 'dist', 'tttp110.*');
+	//let rpoFiles = path.join(__basedir, 'build', 'dist', 'tttp110.*');
 
-	shelljs.rm('-rf', rpoFiles);
-	shelljs.rm('-rf', rpoDir);
-	shelljs.mkdir('-p', rpoDir);
+	//shelljs.rm('-rf', rpoFiles);
+	shelljs.rm('-rf', DIST_DIR);
+	shelljs.mkdir('-p', DIST_DIR);
 }
 
 function prepare() {
@@ -78,13 +78,19 @@ function compile() {
 			var options = Object.assign({
 				fileResource: shelljs.ls(path.join(__basedir, 'src', 'components', 'advpl', 'src')),
 				patchType: "ptm",
-				saveLocal: path.join(__basedir, 'build', 'dist', REPO_NAME)
+				saveLocal: DIST_DIR
 			}, tdsOptions);
 
 			return tds.generatePatch(options);
 		})
 		.then(function() {
 			return appserver.stop();
+		})
+		.then(function() {
+			let from = path.join(__basedir, 'build', 'dist', 'tttp110.rpo'),
+				to = path.join(DIST_DIR, 'tttp110.rpo');
+
+			shelljs.mv('-f', from, to);
 		});
 }
 
@@ -92,13 +98,13 @@ function compile() {
 function copy() {
 	let home = TARGET_DIR,
 		origin = path.join(__basedir, 'build', 'dist', 'tttp110.rpo'),
-		dest = path.join(home, 'src', 'apo', 'tttp110.rpo');
+		dest = path.join(TARGET_DIR, 'src', 'apo', 'tttp110.rpo');
 
 	shelljs.mkdir('-p', path.dirname(dest));
 	shelljs.cp('-Rf', origin, dest);
 
 	origin = path.join(__basedir, 'src', 'resources', 'includes');
-	dest = path.join(home, 'build', 'advpl');
+	dest = path.join(TARGET_DIR, 'build', 'advpl');
 
 	shelljs.mkdir('-p', dest);
 	shelljs.cp('-Rf', origin, dest);
@@ -106,8 +112,8 @@ function copy() {
 	origin = path.join(__basedir, 'src', 'components', 'advpl', 'includes');
 	shelljs.cp('-Rf', origin, dest);
 
-	origin = path.join(__basedir, 'build', 'dist', REPO_NAME, 'tttp110.ptm');
-	dest = path.join(home, 'tttp110.ptm');
+	origin = path.join(DIST_DIR, 'tttp110.ptm');
+	dest = path.join(TARGET_DIR, 'tttp110.ptm');
 	shelljs.cp('-Rf', origin, dest);
 }
 
