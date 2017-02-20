@@ -18,6 +18,7 @@ const APPSERVER_DIR = path.join(__basedir, 'src', 'resources', 'appserver'),
 module.exports = function run() {
 	return Q()
 		.then(clean)
+		.then(prepare)
 		.then(checkout)
 		.then(compile)
 		.then(copy)
@@ -26,10 +27,18 @@ module.exports = function run() {
 
 function clean() {
 	let rpoDir = path.join(__basedir, 'build', 'dist', REPO_NAME),
-		rpoFile = path.join(rpoDir, 'tttp110.*');
+		rpoFiles = path.join(__basedir, 'build', 'dist', 'tttp110.*');
 
-	shelljs.rm('-rf', rpoFile);
+	shelljs.rm('-rf', rpoFiles);
+	shelljs.rm('-rf', rpoDir);
 	shelljs.mkdir('-p', rpoDir);
+}
+
+function prepare() {
+	let rpoOrigin = path.join(__basedir, 'src', 'resources', 'apo', 'tttp110.rpo'),
+		rpoTarget = path.join(__basedir, 'build', 'dist', 'tttp110.rpo');
+
+	shelljs.cp('-Rf', rpoOrigin, rpoTarget);
 }
 
 function compile() {
@@ -82,7 +91,7 @@ function compile() {
 
 function copy() {
 	let home = TARGET_DIR,
-		origin = path.join(__basedir, 'build', 'dist', REPO_NAME, 'tttp110.rpo'),
+		origin = path.join(__basedir, 'build', 'dist', 'tttp110.rpo'),
 		dest = path.join(home, 'src', 'apo', 'tttp110.rpo');
 
 	shelljs.mkdir('-p', path.dirname(dest));
