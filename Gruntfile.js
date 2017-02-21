@@ -5,12 +5,8 @@ global.__basedir = __dirname;
 let path = require('path'),
 	Q = require('q'),
 	tools = require('totvstec-tools'),
-	shelljs = require('shelljs'),
-	AppServer = require('totvs-platform-helper/appserver'),
-	TDS = require('totvs-platform-helper/tdscli');
-
-const APPSERVER_DIR = path.join(__basedir, 'src', 'resources', 'appserver'),
-	APPSERVER_EXE = process.platform === 'win32' ? 'appserver.exe' : 'appserver';
+	advpl = require('./src/util/releases/master-octo-core-advpl'),
+	js = require('./src/util/releases/master-octo-core-js');
 
 module.exports = function(grunt) {
 	var pkg = grunt.file.readJSON('package.json');
@@ -92,70 +88,20 @@ module.exports = function(grunt) {
 	require('time-grunt')(grunt);
 
 	grunt.registerTask('deploy', 'Deploy new artifacts to his repos', function(target) {
-		let done = this.async(),
-			releaseJs = require('./src/util/releases/master-octo-core-js'),
-			releaseAdvpl = require('./src/util/releases/master-octo-core-advpl');
+		let done = this.async();
 
-		Q().then(releaseJs)
-			.then(releaseAdvpl)
-			.then(done);
+		return Q()
+			.then(() => advpl.release())
+			.then(() => js.release())
+			.then(() => done());
 	});
 
 	grunt.registerTask('compile', 'Compile AdvPL', function(target) {
-		let done = this.async(),
-			appserver = new AppServer({
-				target: path.join(APPSERVER_DIR, APPSERVER_EXE),
-				silent: true
-			}),
-			tds = new TDS({ silent: true }),
-			tdsOptions = {
-				serverType: "4GL",
-				server: "127.0.0.1",
-				port: -1,
-				build: "7.00.150715P",
-				environment: "ENVIRONMENT"
-			};
+		let done = this.async();
 
-		shelljs.mkdir('-p', path.join(__basedir, 'build', 'dist', 'advpl'));
-
-		return appserver.start()
-			.then(function() {
-				tdsOptions.port = appserver.tcpPort;
-				tdsOptions.build = appserver.build;
-			})
-			.then(function() {
-				var options = Object.assign({
-					recompile: true,
-					program: [
-						path.join(__basedir, 'src', 'components', 'advpl', 'src')
-					],
-					includes: [
-						path.join(__basedir, 'src', 'resources', 'includes'),
-						path.join(__basedir, 'src', 'components', 'advpl', 'includes')
-					]
-				}, tdsOptions);
-
-				return tds.compile(options);
-			})
-			.then(function() {
-				var options = Object.assign({
-					fileResource: shelljs.ls(path.join(__basedir, 'src', 'components', 'advpl', 'src')),
-					patchType: "ptm",
-					saveLocal: path.join(__basedir, 'build', 'dist', 'advpl')
-				}, tdsOptions);
-
-				return tds.generatePatch(options);
-			})
-			.then(function() {
-				return appserver.stop();
-			})
-			.then(() => {
-				let from = path.join(__basedir, 'build', 'dist', 'tttp110.*'),
-					to = path.join(__basedir, 'build', 'dist', 'advpl');
-
-				shelljs.mv('-f', from, to);
-			})
-			.then(done);
+		return Q()
+			.then(() => advpl.build())
+			.then(() => done());
 	});
 
 	grunt.registerTask('bump', 'Bump version', function(target) {
@@ -178,32 +124,21 @@ module.exports = function(grunt) {
 		let done = this.async(),
 			git = tools.git,
 			pkg = grunt.file.readJSON('package.json'),
-			message = '"Version ' + pkg.version + '"';
+			message = '"Version ' + pkg.version + '"',
+			annotate = 'v' + pkg.version;
 
-		console.log('git commit all message ' + message);
-
-		let promise = git.commit({ all: true, message: message })
-			.then(() => {
-				console.log('git push');
-
-				return git.push();
-			});
+		let promise = Q()
+			.then(() => git.commit({ all: true, message: message }))
+			.then(() => git.push());
 
 		if (target === 'tag') {
 			promise
-				.then(() => {
-					console.log('git tag v' + pkg.version + ' message ' + message);
-
-					return git.tag({ annotate: 'v' + pkg.version, message: message });
-				})
-				.then(() => {
-					console.log('git push tags');
-
-					return git.push({ tags: true });
-				});
+				.then(() => git.tag({ annotate: annotate, message: message }))
+				.then(() => git.push({ tags: true }));
 		}
 
-		promise.then(done);
+		promise
+			.then(() => done());
 	});
 
 	// Full distribution task.
