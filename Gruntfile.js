@@ -5,8 +5,8 @@ global.__basedir = __dirname;
 let path = require('path'),
 	Q = require('q'),
 	tools = require('totvstec-tools'),
-	advpl = require('./src/util/releases/master-octo-core-advpl'),
-	js = require('./src/util/releases/master-octo-core-js');
+	advpl = require('./src/tasks/advpl'),
+	js = require('./src/tasks/js');
 
 module.exports = function(grunt) {
 	var pkg = grunt.file.readJSON('package.json');
