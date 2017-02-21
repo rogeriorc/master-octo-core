@@ -1,6 +1,6 @@
 {
   "name": "master-octo-core",
-  "version": "0.0.13",
+  "version": "0.0.14-SNAPSHOT",
   "description": "The Cloudbridge AdvPL/JavaScript application library",
   "license": "MIT",
   "main": "Gruntfile.js",
