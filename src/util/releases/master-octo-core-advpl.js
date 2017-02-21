@@ -12,8 +12,8 @@ const APPSERVER_DIR = path.join(__basedir, 'src', 'resources', 'appserver'),
 	APPSERVER_EXE = process.platform === 'win32' ? 'appserver.exe' : 'appserver',
 	GITHUB_PREFIX = 'https://github.com/rogeriorc/',
 	REPO_NAME = 'master-octo-core-advpl',
-	TARGET_DIR = path.join(__basedir, 'build', 'release', REPO_NAME),
-	DIST_DIR = path.join(__basedir, 'build', 'dist', REPO_NAME),
+	TARGET_DIR = path.join(__basedir, 'build', 'release', 'advpl'),
+	DIST_DIR = path.join(__basedir, 'build', 'dist', 'advpl'),
 	FILES = ['package.json', 'bower.json'];
 
 module.exports = function run() {

@@ -8,7 +8,8 @@ let path = require('path'),
 
 const GITHUB_PREFIX = 'https://github.com/rogeriorc/',
 	REPO_NAME = 'master-octo-core-js',
-	TARGET_DIR = path.join(__basedir, 'build', 'release', REPO_NAME),
+	TARGET_DIR = path.join(__basedir, 'build', 'release', 'js'),
+	DIST_DIR = path.join(__basedir, 'build', 'dist', 'js'),
 	FILES = ['package.json', 'bower.json'];
 
 module.exports = function run() {
@@ -19,8 +20,8 @@ module.exports = function run() {
 };
 
 function copy() {
-	let origin = path.join(__basedir, 'build', 'dist', REPO_NAME, '*.*'),
-		dest = path.join(__basedir, 'build', 'release', REPO_NAME);
+	let origin = path.join(DIST_DIR, '*.*'),
+		dest = TARGET_DIR;
 
 	shelljs.cp('-Rf', origin, dest);
 }

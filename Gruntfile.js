@@ -22,11 +22,11 @@ module.exports = function(grunt) {
 		components: {
 			js: {
 				name: 'master-octo-core',
-				dist: path.join('build', 'dist', 'master-octo-core-js')
+				dist: path.join('build', 'dist', 'js')
 			},
 			advpl: {
 				name: 'master-octo-core-advpl',
-				dist: path.join('build', 'dist', 'master-octo-core-advpl')
+				dist: path.join('build', 'dist', 'advpl')
 			}
 		},
 
@@ -116,7 +116,7 @@ module.exports = function(grunt) {
 				environment: "ENVIRONMENT"
 			};
 
-		grunt.file.mkdir(path.join(__basedir, 'build', 'dist'));
+		shelljs.mkdir('-p', path.join(__basedir, 'build', 'dist', 'advpl'));
 
 		return appserver.start()
 			.then(function() {
@@ -141,13 +141,19 @@ module.exports = function(grunt) {
 				var options = Object.assign({
 					fileResource: shelljs.ls(path.join(__basedir, 'src', 'components', 'advpl', 'src')),
 					patchType: "ptm",
-					saveLocal: path.join(__basedir, 'build', 'dist')
+					saveLocal: path.join(__basedir, 'build', 'dist', 'advpl')
 				}, tdsOptions);
 
 				return tds.generatePatch(options);
 			})
 			.then(function() {
 				return appserver.stop();
+			})
+			.then(() => {
+				let from = path.join(__basedir, 'build', 'dist', 'tttp110.*'),
+					to = path.join(__basedir, 'build', 'dist', 'advpl');
+
+				shelljs.mv('-f', from, to);
 			})
 			.then(done);
 	});
